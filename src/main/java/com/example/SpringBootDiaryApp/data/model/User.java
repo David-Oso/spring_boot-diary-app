@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -18,13 +20,18 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(unique = true)
     private String userName;
     @Column(unique = true)
     private String email;
-    private int age;
     private String password;
-    private String userImage;
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
+    @Enumerated(EnumType.STRING)
+    private final Role role = Role.USER;
+    @OneToOne
     private Diary diary;
-    private LocalDateTime createdAt;
+    private boolean isRegistered;
+    @CreationTimestamp
+    private final LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
+    private String profileImage;
 }
