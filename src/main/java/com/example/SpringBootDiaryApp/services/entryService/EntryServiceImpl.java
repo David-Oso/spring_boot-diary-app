@@ -2,20 +2,30 @@ package com.example.SpringBootDiaryApp.services.entryService;
 
 import com.example.SpringBootDiaryApp.data.dto.request.CreateEntryRequest;
 import com.example.SpringBootDiaryApp.data.dto.request.UpdateEntryRequest;
+import com.example.SpringBootDiaryApp.data.model.Diary;
 import com.example.SpringBootDiaryApp.data.model.Entry;
+import com.example.SpringBootDiaryApp.data.model.User;
 import com.example.SpringBootDiaryApp.data.repositories.EntryRepository;
 import com.example.SpringBootDiaryApp.exception.NotFoundException;
+import com.example.SpringBootDiaryApp.services.diaryService.DiaryService;
+import com.example.SpringBootDiaryApp.services.userService.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class EntryServiceImpl implements EntryService{
     private final EntryRepository entryRepository;
+    private final UserService userService;
+    private final DiaryService diaryService;
     @Override
     public String createEntry(CreateEntryRequest createEntryRequest) {
+        User foundUser = userService.getUserById(createEntryRequest.getUserId());
+        Diary foundDiary = foundUser.getDiary();
        Entry entry = new Entry();
        entry.setTitle(createEntryRequest.getTitle());
        entry.setBody(createEntryRequest.getBody());
@@ -23,6 +33,8 @@ public class EntryServiceImpl implements EntryService{
            entry.setDescription(createEntryRequest.getBody().substring(0, 50));
        entry.setCreatedAt(LocalDateTime.now());
        entryRepository.save(entry);
+       foundDiary.setEntries(Set.of(entry));
+       diaryService.saveDiary(foundDiary);
         return "Entry added";
     }
 
@@ -45,8 +57,18 @@ public class EntryServiceImpl implements EntryService{
     }
 
     @Override
+    public Long numberOfEntries() {
+        return entryRepository.count();
+    }
+
+    @Override
     public String deleteEntry(Long entryId) {
         entryRepository.deleteById(entryId);
         return "Entry deleted";
+    }
+
+    @Override
+    public List<Entry> getAllEntries() {
+        return entryRepository.findAll();
     }
 }

@@ -6,11 +6,11 @@ import com.example.SpringBootDiaryApp.data.dto.request.UpdateUserRequest;
 import com.example.SpringBootDiaryApp.data.dto.response.AuthenticationResponse;
 import com.example.SpringBootDiaryApp.data.model.Diary;
 import com.example.SpringBootDiaryApp.data.model.User;
+import com.example.SpringBootDiaryApp.data.repositories.DiaryRepository;
 import com.example.SpringBootDiaryApp.data.repositories.UserRepository;
 import com.example.SpringBootDiaryApp.exception.ImageUploadException;
 import com.example.SpringBootDiaryApp.exception.NotFoundException;
 import com.example.SpringBootDiaryApp.services.cloud.CloudService;
-import com.example.SpringBootDiaryApp.services.diaryService.DiaryService;
 import lombok.AllArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -24,13 +24,13 @@ public class UserServiceImpl implements UserService{
     private final ModelMapper modelMapper;
     private final CloudService cloudService;
     private final UserRepository userRepository;
-    private final DiaryService diaryService;
+    private final DiaryRepository diaryRepository;
 
     @Override
     public AuthenticationResponse registerUser(RegisterRequest registerUserRequest) {
         User user = modelMapper.map(registerUserRequest, User.class);
         user.setRegistered(true);
-        Diary createdDiary = diaryService.saveDiary(new Diary());
+        Diary createdDiary = diaryRepository.save(new Diary());
         user.setDiary(createdDiary);
         String imageUrl = uploadImage(registerUserRequest.getProfileImage());
         user.setProfileImage(imageUrl);
