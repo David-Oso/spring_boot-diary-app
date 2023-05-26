@@ -66,8 +66,8 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public String updateUser(Long userId, UpdateUserRequest updateUserRequest) {
-        User foundUser = getUserById(userId);
+    public String updateUser(UpdateUserRequest updateUserRequest) {
+        User foundUser = getUserById(updateUserRequest.getUserId());
         foundUser.setUserName(updateUserRequest.getUserName());
         String updateImageUrl = uploadImage(updateUserRequest.getProfileImage());
         foundUser.setProfileImage(updateImageUrl);

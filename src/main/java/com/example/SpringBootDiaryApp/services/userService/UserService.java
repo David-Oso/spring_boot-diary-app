@@ -15,9 +15,7 @@ public interface UserService {
     AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest);
     User getUserById(Long userId);
     User getUserByEmail(String email);
-    String updateUser(Long userId, UpdateUserRequest updateUserRequest);
-
-
+    String updateUser(UpdateUserRequest updateUserRequest);
     String deleteUserById(Long userId);
     Long count();
 }

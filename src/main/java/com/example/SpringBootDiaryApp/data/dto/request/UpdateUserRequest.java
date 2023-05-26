@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @Setter
 public class UpdateUserRequest {
+    private Long userId;
     private String userName;
     private MultipartFile profileImage;
 }
