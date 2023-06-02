@@ -17,7 +17,6 @@ public class Diary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-//    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    @OneToMany
+    @OneToMany(fetch = FetchType.EAGER)
     private Set<Entry> entries;
 }

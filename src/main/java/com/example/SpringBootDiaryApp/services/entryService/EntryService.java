@@ -13,4 +13,5 @@ public interface EntryService {
     Long numberOfEntries();
     String deleteEntry(Long entryId);
     List<Entry> getAllEntries();
+    void deleteAllEntries();
 }

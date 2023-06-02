@@ -11,11 +11,14 @@ import java.util.List;
 
 
 public interface UserService {
-    AuthenticationResponse registerUser(RegisterRequest registerUserRequest);
+    void registerUser(RegisterRequest registerUserRequest);
+    AuthenticationResponse verifyEmail(EmailVerificationRequest emailVerificationRequest);
     AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest);
+    String uploadProfileImage(UploadImageRequest uploadImageRequest);
     User getUserById(Long userId);
     User getUserByEmail(String email);
     String updateUser(UpdateUserRequest updateUserRequest);
+    AuthenticationResponse resetPassword(ResetPasswordRequest resetPasswordRequest);
     String deleteUserById(Long userId);
     Long count();
 }

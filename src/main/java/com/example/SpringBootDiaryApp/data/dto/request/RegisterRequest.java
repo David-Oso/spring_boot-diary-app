@@ -36,8 +36,8 @@ public class RegisterRequest {
     private String password;
 
 
-    @Pattern(message = "profile image must be a jpeg or jpg or svg format", regexp = IMAGE_REGEX)
-    private MultipartFile profileImage;
+//    @Pattern(message = "profile image must be a jpeg or jpg or svg format", regexp = IMAGE_REGEX)
+//    private MultipartFile profileImage;
 
 
 }

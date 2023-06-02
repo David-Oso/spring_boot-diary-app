@@ -30,10 +30,10 @@ public class EntryServiceImpl implements EntryService{
        entry.setTitle(createEntryRequest.getTitle());
        entry.setBody(createEntryRequest.getBody());
        if(createEntryRequest.getBody().length() > 50)
-           entry.setDescription(createEntryRequest.getBody().substring(0, 50));
+           entry.setDescription(createEntryRequest.getBody().substring(0, 50)+"...");
        entry.setCreatedAt(LocalDateTime.now());
-       entryRepository.save(entry);
-       foundDiary.setEntries(Set.of(entry));
+       Entry savedEntry = entryRepository.save(entry);
+       foundDiary.getEntries().add(savedEntry);
        diaryService.saveDiary(foundDiary);
         return "Entry added";
     }
@@ -50,7 +50,7 @@ public class EntryServiceImpl implements EntryService{
         foundEntry.setTitle(updateEntryRequest.getUpdateTitle());
         foundEntry.setBody(updateEntryRequest.getUpdateBody());
         if(updateEntryRequest.getUpdateBody().length() > 50)
-            foundEntry.setDescription(updateEntryRequest.getUpdateBody().substring(0, 50));
+            foundEntry.setDescription(updateEntryRequest.getUpdateBody().substring(0, 50)+"...");
         foundEntry.setUpdatedAt(LocalDateTime.now());
         entryRepository.save(foundEntry);
         return "Entry updated";
@@ -70,5 +70,10 @@ public class EntryServiceImpl implements EntryService{
     @Override
     public List<Entry> getAllEntries() {
         return entryRepository.findAll();
+    }
+
+    @Override
+    public void deleteAllEntries() {
+        entryRepository.deleteAll();
     }
 }

@@ -27,9 +27,9 @@ public class User {
     private String password;
     @Enumerated(EnumType.STRING)
     private final Role role = Role.USER;
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Diary diary;
-    private boolean isRegistered;
+    private boolean isEnabled = false;
     @CreationTimestamp
     private final LocalDateTime createdAt = LocalDateTime.now();
     private LocalDateTime updatedAt;

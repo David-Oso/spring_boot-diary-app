@@ -2,6 +2,7 @@ package com.example.SpringBootDiaryApp.config;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.example.SpringBootDiaryApp.services.emailService.EmailNotificationRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -16,6 +17,16 @@ public class AppConfig {
     private String apiKey;
     @Value("${cloudinary.api.secret}")
     private String apiSecret;
+    @Value("${mail.api.key}")
+    private String mailApiKey;
+    @Value("${sendinblue.mail.url}")
+    private String mailUrl;
+
+    @Bean
+    public MailConfig mailConfig(){
+        return new MailConfig(mailApiKey, mailUrl);
+    }
+
     @Bean
     public ModelMapper modelMapper(){
         return new ModelMapper();
@@ -30,5 +41,9 @@ public class AppConfig {
                         "api_secret",apiSecret
                 )
         );
+    }
+    @Bean
+    public EmailNotificationRequest emailNotificationRequest(){
+        return new EmailNotificationRequest();
     }
 }
