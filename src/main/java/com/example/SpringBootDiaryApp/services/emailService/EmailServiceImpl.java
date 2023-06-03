@@ -1,13 +1,12 @@
 package com.example.SpringBootDiaryApp.services.emailService;
 
-import com.example.SpringBootDiaryApp.config.MailConfig;
+import com.example.SpringBootDiaryApp.config.mailConfig.MailConfig;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 

@@ -1,4 +1,4 @@
-package com.example.SpringBootDiaryApp.config;
+package com.example.SpringBootDiaryApp.config.mailConfig;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -14,6 +14,7 @@ public interface UserService {
     User getUserById(Long userId);
     User getUserByEmail(String email);
     String changeUserName(ChangeUserNameRequest changeUserNameRequest);
+    String sendRestPasswordMail(String email);
     AuthenticationResponse resetPassword(ResetPasswordRequest resetPasswordRequest);
     String deleteUserById(Long userId);
     Long count();

@@ -1,9 +1,6 @@
 package com.example.SpringBootDiaryApp.services.userService;
 
-import com.example.SpringBootDiaryApp.data.dto.request.ChangeUserNameRequest;
-import com.example.SpringBootDiaryApp.data.dto.request.EmailVerificationRequest;
-import com.example.SpringBootDiaryApp.data.dto.request.RegisterRequest;
-import com.example.SpringBootDiaryApp.data.dto.request.UploadImageRequest;
+import com.example.SpringBootDiaryApp.data.dto.request.*;
 import com.example.SpringBootDiaryApp.data.dto.response.AuthenticationResponse;
 import com.example.SpringBootDiaryApp.data.model.User;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +43,7 @@ class UserServiceImplTest {
     void verifyEmail() {
         EmailVerificationRequest emailVerificationRequest = new EmailVerificationRequest();
         emailVerificationRequest.setEmail("osodavid001@gmail.com");
-        emailVerificationRequest.setVerificationToken("-_zbJrUU");
+        emailVerificationRequest.setVerificationToken("ztQ2re6M");
 
         AuthenticationResponse response = userService.verifyEmail(emailVerificationRequest, registerRequest1);
         assertThat(response.getMessage()).isEqualTo("Account verification successful");
@@ -54,7 +51,7 @@ class UserServiceImplTest {
 
         EmailVerificationRequest emailVerificationRequest2 = new EmailVerificationRequest();
         emailVerificationRequest2.setEmail("osodavid272@gmail.com");
-        emailVerificationRequest2.setVerificationToken("kUZy89Sq");
+        emailVerificationRequest2.setVerificationToken("OMOcvI3y");
 
         AuthenticationResponse response2 = userService.verifyEmail(emailVerificationRequest2, registerRequest2);
         assertThat(response2.getMessage()).isEqualTo("Account verification successful");
@@ -84,14 +81,14 @@ class UserServiceImplTest {
     @Test
     void getUserById() {
         User foundUser = userService.getUserById(1L);
-        assertThat(foundUser.getUserName()).isEqualTo(registerRequest1.getUserName());
+        assertThat(foundUser.getName()).isEqualTo(registerRequest1.getUserName());
         assertThat(foundUser.getEmail()).isEqualTo(registerRequest1.getEmail());
     }
 
     @Test
     void getUserByEmail() {
         User foundUser = userService.getUserByEmail("osodavid001@gmail.com");
-        assertThat(foundUser.getUserName()).isEqualTo(registerRequest1.getUserName());
+        assertThat(foundUser.getName()).isEqualTo(registerRequest1.getUserName());
     }
 
     @Test
@@ -104,7 +101,20 @@ class UserServiceImplTest {
     }
 
     @Test
+    void sendRestPasswordMailTest(){
+        String response = userService.sendRestPasswordMail(registerRequest1.getEmail());
+        assertThat(response).isEqualTo("Check you mail to process your request");
+    }
+
+    @Test
     void resetPassword() {
+        ResetPasswordRequest resetPasswordRequest = new ResetPasswordRequest();
+        resetPasswordRequest.setEmail(registerRequest1.getEmail());
+        resetPasswordRequest.setNewPassword("newPassword");
+        resetPasswordRequest.setResetPasswordToken("j_JA7toO");
+        AuthenticationResponse response = userService.resetPassword(resetPasswordRequest);
+        assertThat(response.isSuccess()).isEqualTo(true);
+        assertThat(response.getMessage()).isEqualTo("Password changed successfully");
     }
 
     @Test
@@ -115,7 +125,7 @@ class UserServiceImplTest {
 
     @Test
     void deleteUserById() {
-        String response = userService.deleteUserById(1L);
+        String response = userService.deleteUserById(2L);
         assertThat(response).isEqualTo("User Account Deleted");
         assertThat(userService.count()).isEqualTo(1L);
     }
