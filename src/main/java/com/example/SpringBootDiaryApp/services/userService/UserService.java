@@ -12,7 +12,8 @@ import java.util.List;
 
 public interface UserService {
     void registerUser(RegisterRequest registerUserRequest);
-    AuthenticationResponse verifyEmail(EmailVerificationRequest emailVerificationRequest);
+    void resendTokenToRegisteredEmail(User user);
+    AuthenticationResponse verifyEmail(EmailVerificationRequest emailVerificationRequest, RegisterRequest registerRequest);
     AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest);
     String uploadProfileImage(UploadImageRequest uploadImageRequest);
     User getUserById(Long userId);

@@ -3,6 +3,7 @@ package com.example.SpringBootDiaryApp.services.userService;
 import com.example.SpringBootDiaryApp.config.RandomStringGenerator;
 import com.example.SpringBootDiaryApp.data.dto.request.*;
 import com.example.SpringBootDiaryApp.data.dto.response.AuthenticationResponse;
+import com.example.SpringBootDiaryApp.data.model.Diary;
 import com.example.SpringBootDiaryApp.data.model.Token;
 import com.example.SpringBootDiaryApp.data.model.User;
 import com.example.SpringBootDiaryApp.data.repositories.DiaryRepository;
@@ -37,8 +38,18 @@ public class UserServiceImpl implements UserService{
     public void registerUser(RegisterRequest registerUserRequest) {
         User newUser = new User();
         newUser.setEmail(registerUserRequest.getEmail());
+        User existingUser = userRepository.findUserByEmail(registerUserRequest.getEmail());
+        if(existingUser != null)
+            resendTokenToRegisteredEmail(existingUser);
+        else{
         User savedUser = userRepository.save(newUser);
         sendVerificationMail(savedUser);
+        }
+    }
+    @Override
+    public void resendTokenToRegisteredEmail(User existingUser) {
+        if (existingUser != null && !existingUser.isEnabled())sendVerificationMail(existingUser);
+//        Email already registered. Verification Token has been sent to your email verify your account
     }
 
     private void sendVerificationMail(User user) {
@@ -48,12 +59,8 @@ public class UserServiceImpl implements UserService{
         emailNotificationRequest.setSubject("Activation Of MyDiary Application");
 
         String otp = RandomStringGenerator.generateRandomString(6);
-        emailNotificationRequest.setHtmlContent(
-                String.format("""
-                        To activate MyDiary Application, enter the verification code below:
-                                                    %s                                                 
-                        Note: The verification code expires within 5 minutes.
-                        """, otp));
+        String htmlContent = getEmailMessage(otp);
+        emailNotificationRequest.setHtmlContent(htmlContent);
         Optional<Token> existingToken = tokenRepository.findTokenByUser(user);
         existingToken.ifPresent(tokenRepository::delete);
         Token token = new Token(user, otp);
@@ -61,8 +68,19 @@ public class UserServiceImpl implements UserService{
         emailService.sendHtmlMail(emailNotificationRequest);
     }
 
+    private String getEmailMessage(String otp) {
+        return String.format("""
+                     To activate MyDiary Application, enter the verification code below:
+                     
+                                                    %s  \s
+                                                                                                 \s
+                     Note: The verification code expires within 5 minutes.
+                     
+                       """, otp);
+    }
+
     @Override
-    public AuthenticationResponse verifyEmail(EmailVerificationRequest emailVerificationRequest) {
+    public AuthenticationResponse verifyEmail(EmailVerificationRequest emailVerificationRequest, RegisterRequest registerRequest) {
         User verifiesUser = getUserByEmail(emailVerificationRequest.getEmail());
         if (verifiesUser == null)throw new RegistrationException("Invalid email");
         Optional<Token> token = tokenRepository.findTokenByUserAndOtp(verifiesUser, emailVerificationRequest.getVerificationToken());
@@ -72,21 +90,41 @@ public class UserServiceImpl implements UserService{
             throw new RegistrationException("Token is expired");
         }
         else{
-            verifiesUser.setEnabled(true);
-
+            saveVerifiedUser(verifiesUser, registerRequest);
+            tokenRepository.delete(token.get());
         }
-        return null;
+        return AuthenticationResponse.builder()
+                .isSuccess(true)
+                .message("Account verification successful")
+                .build();
     }
+
+    private void saveVerifiedUser(User verifiesUser, RegisterRequest registerRequest) {
+        verifiesUser.setUserName(registerRequest.getUserName());
+        verifiesUser.setPassword(registerRequest.getPassword());
+        verifiesUser.setEnabled(true);
+        verifiesUser.setDiary(new Diary());
+        User savedUser = userRepository.save(verifiesUser);
+        sendSuccessfulRegistrationMail(savedUser);
+    }
+
+    private void sendSuccessfulRegistrationMail(User user) {
+        emailNotificationRequest = new EmailNotificationRequest();
+        emailNotificationRequest.setSubject("Successful Account Creation");
+        Recipient recipient = new Recipient(user.getUserName(), user.getEmail());
+        emailNotificationRequest.getTo().add(recipient);
+        emailNotificationRequest.setHtmlContent(String.format("""
+                Dear %s, you have Diary has been verified.
+                Kindly enjoy and judiciously use your diary wisely.
+                
+                Thank you for choosing MyDiary
+                
+                """, user.getUserName()));
+    }
+
 
     @Override
     public AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest) {
-//        User foundUser = getUserByEmail(authenticationRequest.getEmail());
-//        if(foundUser != null && foundUser.getPassword().equals(authenticationRequest.getPassword()))
-//            return AuthenticationResponse.builder()
-//                    .isSuccess(true)
-//                    .message("Authentication Successful")
-//                    .build();
-//        else throw new RegistrationException("Authentication failed");
         return null;
     }
 
@@ -132,11 +170,5 @@ public class UserServiceImpl implements UserService{
     @Override
     public Long count() {
         return userRepository.count();
-    }
-
-    private void validateEmail(String email) {
-        User foundUser = userRepository.findUserByEmail(email);
-        if(foundUser != null)
-            throw new RegistrationException(String.format("User with email %s already exists", email));
     }
 }
