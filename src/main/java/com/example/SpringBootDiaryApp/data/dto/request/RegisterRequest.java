@@ -29,11 +29,13 @@ public class RegisterRequest {
     @Email(message = "must be valid email address", regexp = EMAIL_REGEX_STRING)
     private String email;
 
-
     @NotEmpty(message = "field password cannot be empty")
     @NotBlank(message = "field password cannot be blank")
     @Size(min = 8, message = "Password must have at least 8 characters")
     @Pattern(regexp = PASSWORD_REGEX_STRING,
             message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character")
     private String password;
+
+    private String verificationToken;
+
 }

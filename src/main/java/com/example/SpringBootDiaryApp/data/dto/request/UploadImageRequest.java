@@ -15,5 +15,5 @@ import static com.example.SpringBootDiaryApp.utils.AppUtils.IMAGE_REGEX;
 @Setter
 public class UploadImageRequest {
     private Long userId;
-    @Pattern(message = "profile image must be a jpeg or jpg or svg format", regexp = IMAGE_REGEX)
+//    @Pattern(message = "profile image must be a jpeg or jpg or svg format", regexp = IMAGE_REGEX)
     private MultipartFile profileImage;}

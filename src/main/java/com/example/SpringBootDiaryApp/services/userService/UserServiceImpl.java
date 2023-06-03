@@ -40,19 +40,20 @@ public class UserServiceImpl implements UserService{
     private final AuthenticationManager authenticationManager;
 
     @Override
-    public void registerUser(RegisterRequest registerUserRequest) {
+    public void registerUser(EmailVerificationRequest emailVerificationRequest) {
         User newUser = new User();
-        newUser.setEmail(registerUserRequest.getEmail());
-        User existingUser = userRepository.findUserByEmail(registerUserRequest.getEmail());
+        newUser.setEmail(emailVerificationRequest.getEmail());
+        User existingUser = userRepository.findUserByEmail(emailVerificationRequest.getEmail());
         if(existingUser != null)
-            resendTokenToRegisteredEmail(existingUser);
+            resendTokenToRegisteredEmail(emailVerificationRequest.getEmail());
         else{
             User savedUser = userRepository.save(newUser);
             sendVerificationMail(savedUser);
         }
     }
     @Override
-    public void resendTokenToRegisteredEmail(User existingUser) {
+    public void resendTokenToRegisteredEmail(String email) {
+        User existingUser = getUserByEmail(email);
         if (existingUser != null && !existingUser.isVerified())
             sendVerificationMail(existingUser);
 //        Email already registered. Verification Token has been sent to your email verify your account
@@ -86,17 +87,17 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public AuthenticationResponse verifyEmail(EmailVerificationRequest emailVerificationRequest, RegisterRequest registerRequest) {
-        User verifiesUser = getUserByEmail(emailVerificationRequest.getEmail());
+    public AuthenticationResponse verifyEmail(RegisterRequest registerRequest) {
+        User verifiesUser = getUserByEmail(registerRequest.getEmail());
         if (verifiesUser == null)throw new RegistrationException("Invalid email");
-        Optional<Token> token = tokenRepository.findTokenByUserAndOtp(verifiesUser, emailVerificationRequest.getVerificationToken());
+        Optional<Token> token = tokenRepository.findTokenByUserAndOtp(verifiesUser, registerRequest.getVerificationToken());
         if(token.isEmpty())throw new RegistrationException("Invalid token");
         else if(token.get().getExpiryTime().isBefore(LocalDateTime.now())){
             tokenRepository.delete(token.get());
             throw new RegistrationException("Token is expired");
         }
         else{
-            User saveUser = saveVerifiedUser(verifiesUser, registerRequest);
+            User saveUser = saveVerifiedUser(verifiesUser, registerRequest.getUserName(), registerRequest.getPassword());
             tokenRepository.delete(token.get());
             String jwtAccessToken = jwtService.generateAccessToken(saveUser);
             String jwtRefreshToken = jwtService.generateRefreshToken(saveUser);
@@ -111,9 +112,9 @@ public class UserServiceImpl implements UserService{
         }
     }
 
-    private User saveVerifiedUser(User verifiesUser, RegisterRequest registerRequest) {
-        verifiesUser.setName(registerRequest.getUserName());
-        verifiesUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
+    private User saveVerifiedUser(User verifiesUser, String userName, String password) {
+        verifiesUser.setName(userName);
+        verifiesUser.setPassword(passwordEncoder.encode(password));
         verifiesUser.setVerified(true);
         verifiesUser.setDiary(new Diary());
         User savedUser = userRepository.save(verifiesUser);
@@ -152,6 +153,7 @@ public class UserServiceImpl implements UserService{
         deleteExpiredOrRevokedJwtToken();
         saveUserJwtToken(user, accessToken);
         return AuthenticationResponse.builder()
+                .isSuccess(true)
                 .message("Authentication successful")
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
@@ -186,6 +188,7 @@ public class UserServiceImpl implements UserService{
     public String changeUserName(ChangeUserNameRequest changeUserNameRequest) {
         User user = getUserById(changeUserNameRequest.getUserId());
         user.setName(changeUserNameRequest.getUserName());
+        user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
         return "User name changed";
     }
@@ -232,13 +235,18 @@ public class UserServiceImpl implements UserService{
         else {
             verifiedUser.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
             deleteExpiredOrRevokedJwtToken();
-            userRepository.save(verifiedUser);
+            User savedUser = userRepository.save(verifiedUser);
             tokenRepository.delete(token.get());
-        }
-        return AuthenticationResponse.builder()
+            String accessToken = jwtService.generateAccessToken(savedUser);
+            String refreshToken = jwtService.generateRefreshToken(savedUser);
+
+            return AuthenticationResponse.builder()
                 .isSuccess(true)
                 .message("Password changed successfully")
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
                 .build();
+        }
     }
     @Override
     public String deleteUserById(Long userId) {

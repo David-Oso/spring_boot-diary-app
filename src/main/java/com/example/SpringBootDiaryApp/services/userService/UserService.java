@@ -6,9 +6,9 @@ import com.example.SpringBootDiaryApp.data.model.User;
 
 
 public interface UserService {
-    void registerUser(RegisterRequest registerUserRequest);
-    void resendTokenToRegisteredEmail(User user);
-    AuthenticationResponse verifyEmail(EmailVerificationRequest emailVerificationRequest, RegisterRequest registerRequest);
+    void registerUser(EmailVerificationRequest emailVerificationRequest);
+    void resendTokenToRegisteredEmail(String email);
+    AuthenticationResponse verifyEmail(RegisterRequest registerRequest);
     AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest);
     String uploadProfileImage(UploadImageRequest uploadImageRequest);
     User getUserById(Long userId);
