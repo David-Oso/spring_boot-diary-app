@@ -14,7 +14,7 @@ import org.springframework.web.client.RestTemplate;
 @Service
 @AllArgsConstructor
 @Slf4j
-@Async
+//@Async
 public class EmailServiceImpl implements EmailService{
     private final MailConfig mailConfig;
 

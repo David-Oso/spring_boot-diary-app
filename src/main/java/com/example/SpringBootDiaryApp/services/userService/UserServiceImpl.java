@@ -16,11 +16,8 @@ import com.example.SpringBootDiaryApp.services.emailService.EmailNotificationReq
 import com.example.SpringBootDiaryApp.services.emailService.EmailService;
 import com.example.SpringBootDiaryApp.services.emailService.Recipient;
 import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -29,7 +26,6 @@ import java.util.Optional;
 public class UserServiceImpl implements UserService{
     private final CloudService cloudService;
     private final UserRepository userRepository;
-    private final DiaryRepository diaryRepository;
     private EmailNotificationRequest emailNotificationRequest;
     private final TokenRepository tokenRepository;
     private final EmailService emailService;
@@ -48,7 +44,8 @@ public class UserServiceImpl implements UserService{
     }
     @Override
     public void resendTokenToRegisteredEmail(User existingUser) {
-        if (existingUser != null && !existingUser.isEnabled())sendVerificationMail(existingUser);
+        if (existingUser != null && !existingUser.isEnabled())
+            sendVerificationMail(existingUser);
 //        Email already registered. Verification Token has been sent to your email verify your account
     }
 
@@ -133,6 +130,7 @@ public class UserServiceImpl implements UserService{
         User foundUser = getUserById(uploadImageRequest.getUserId());
         String imageUrl = cloudService.upload(uploadImageRequest.getProfileImage());
         foundUser.setProfileImage(imageUrl);
+        foundUser.setUpdatedAt(LocalDateTime.now());
         userRepository.save(foundUser);
         return "Profile image uploaded";
     }
@@ -152,8 +150,11 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public String updateUser(UpdateUserRequest updateUserRequest) {
-        return "User Details updated";
+    public String changeUserName(ChangeUserNameRequest changeUserNameRequest) {
+        User user = getUserById(changeUserNameRequest.getUserId());
+        user.setUserName(changeUserNameRequest.getUserName());
+        userRepository.save(user);
+        return "User name changed";
     }
 
     @Override

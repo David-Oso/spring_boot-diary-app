@@ -1,13 +1,21 @@
 package com.example.SpringBootDiaryApp.services.userService;
 
+import com.example.SpringBootDiaryApp.data.dto.request.ChangeUserNameRequest;
 import com.example.SpringBootDiaryApp.data.dto.request.EmailVerificationRequest;
 import com.example.SpringBootDiaryApp.data.dto.request.RegisterRequest;
+import com.example.SpringBootDiaryApp.data.dto.request.UploadImageRequest;
 import com.example.SpringBootDiaryApp.data.dto.response.AuthenticationResponse;
+import com.example.SpringBootDiaryApp.data.model.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 
+import java.io.FileInputStream;
+import java.io.IOException;
+
+import static com.example.SpringBootDiaryApp.utils.AppUtils.DIARY_TEST_IMAGE;
 import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 class UserServiceImplTest {
@@ -59,18 +67,40 @@ class UserServiceImplTest {
 
     @Test
     void uploadProfileImage() {
+        UploadImageRequest uploadImageRequest = new UploadImageRequest();
+        uploadImageRequest.setUserId(1L);
+        try{
+        MockMultipartFile file =
+                new MockMultipartFile("test_license",
+                        new FileInputStream(DIARY_TEST_IMAGE));
+        uploadImageRequest.setProfileImage(file);
+        String response = userService.uploadProfileImage(uploadImageRequest);
+        assertThat(response).isEqualTo("Profile image uploaded");
+        }catch (IOException exception){
+            System.out.println(exception.getMessage());
+        }
     }
 
     @Test
     void getUserById() {
+        User foundUser = userService.getUserById(1L);
+        assertThat(foundUser.getUserName()).isEqualTo(registerRequest1.getUserName());
+        assertThat(foundUser.getEmail()).isEqualTo(registerRequest1.getEmail());
     }
 
     @Test
     void getUserByEmail() {
+        User foundUser = userService.getUserByEmail("osodavid001@gmail.com");
+        assertThat(foundUser.getUserName()).isEqualTo(registerRequest1.getUserName());
     }
 
     @Test
-    void updateUser() {
+    void changeUserName() {
+        ChangeUserNameRequest changeUserNameRequest = new ChangeUserNameRequest();
+        changeUserNameRequest.setUserId(2L);
+        changeUserNameRequest.setUserName("updateSecondUser");
+        String response = userService.changeUserName(changeUserNameRequest);
+        assertThat(response).isEqualTo("User name changed");
     }
 
     @Test
@@ -78,10 +108,17 @@ class UserServiceImplTest {
     }
 
     @Test
-    void deleteUserById() {
+    void count(){
+        Long numberOfUser = userService.count();
+        assertThat(numberOfUser).isEqualTo(2L);
     }
 
     @Test
-    void count() {
+    void deleteUserById() {
+        String response = userService.deleteUserById(1L);
+        assertThat(response).isEqualTo("User Account Deleted");
+        assertThat(userService.count()).isEqualTo(1L);
     }
+
+
 }
