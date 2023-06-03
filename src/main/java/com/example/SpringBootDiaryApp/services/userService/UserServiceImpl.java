@@ -98,15 +98,16 @@ public class UserServiceImpl implements UserService{
         else{
             User saveUser = saveVerifiedUser(verifiesUser, registerRequest);
             tokenRepository.delete(token.get());
-        String jwtAccessToken = jwtService.generateAccessToken(saveUser);
-        String jwtRefreshToken = jwtService.generateRefreshToken(saveUser);
-        saveUserJwtToken(saveUser, jwtAccessToken);
-        return AuthenticationResponse.builder()
-                .isSuccess(true)
-                .message("Account verification successful")
-                .accessToken(jwtAccessToken)
-                .refreshToken(jwtRefreshToken)
-                .build();
+            String jwtAccessToken = jwtService.generateAccessToken(saveUser);
+            String jwtRefreshToken = jwtService.generateRefreshToken(saveUser);
+            deleteExpiredOrRevokedJwtToken();
+            saveUserJwtToken(saveUser, jwtAccessToken);
+            return AuthenticationResponse.builder()
+                    .isSuccess(true)
+                    .message("Account verification successful")
+                    .accessToken(jwtAccessToken)
+                    .refreshToken(jwtRefreshToken)
+                    .build();
         }
     }
 
@@ -148,8 +149,10 @@ public class UserServiceImpl implements UserService{
         String accessToken = jwtService.generateAccessToken(user);
         String refreshToken = jwtService.generateRefreshToken(user);
         revokeAllUserTokens(user);
+        deleteExpiredOrRevokedJwtToken();
         saveUserJwtToken(user, accessToken);
         return AuthenticationResponse.builder()
+                .message("Authentication successful")
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
@@ -227,8 +230,10 @@ public class UserServiceImpl implements UserService{
             throw new RuntimeException("Token is expired");
         }
         else {
-            verifiedUser.setPassword(resetPasswordRequest.getNewPassword());
+            verifiedUser.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
+            deleteExpiredOrRevokedJwtToken();
             userRepository.save(verifiedUser);
+            tokenRepository.delete(token.get());
         }
         return AuthenticationResponse.builder()
                 .isSuccess(true)
@@ -237,7 +242,11 @@ public class UserServiceImpl implements UserService{
     }
     @Override
     public String deleteUserById(Long userId) {
+        User foundUser = getUserById(userId);
+        var foundJwtTokens = jwtTokenRepository.findAllValidTokenByUser(userId);
+        jwtTokenRepository.deleteAll(foundJwtTokens);
         userRepository.deleteById(userId);
+        userRepository.delete(foundUser);
         return "User Account Deleted";
     }
 
@@ -264,8 +273,18 @@ public class UserServiceImpl implements UserService{
             jwtToken.setExpired(true);
             jwtToken.setRevoked(true);
         });
+        deleteExpiredOrRevokedJwtToken();
         jwtTokenRepository.saveAll(validUserTokens);
     }
+
+    private void deleteExpiredOrRevokedJwtToken(){
+        for(JwtToken jwt : jwtTokenRepository.findAll()){
+            if(jwt.isExpired() || jwt.isRevoked())
+                jwtTokenRepository.delete(jwt);
+        }
+    }
+
+
 
 //    public void refreshToken(HttpServletRequest request, HttpServletResponse response)throws IOException{
 //        final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);

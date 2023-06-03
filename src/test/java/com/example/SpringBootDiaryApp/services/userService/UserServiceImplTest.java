@@ -19,6 +19,7 @@ class UserServiceImplTest {
     @Autowired UserService userService;
     private RegisterRequest registerRequest1;
     private RegisterRequest registerRequest2;
+    private AuthenticationRequest authenticationRequest;
 
     @BeforeEach
     void setUp() {
@@ -31,6 +32,8 @@ class UserServiceImplTest {
         registerRequest2.setUserName("secondUser");
         registerRequest2.setEmail("osodavid272@gmail.com");
         registerRequest2.setPassword("password");
+
+
     }
 
     @Test
@@ -43,23 +46,33 @@ class UserServiceImplTest {
     void verifyEmail() {
         EmailVerificationRequest emailVerificationRequest = new EmailVerificationRequest();
         emailVerificationRequest.setEmail("osodavid001@gmail.com");
-        emailVerificationRequest.setVerificationToken("ztQ2re6M");
+        emailVerificationRequest.setVerificationToken("2x0qlbWY");
 
         AuthenticationResponse response = userService.verifyEmail(emailVerificationRequest, registerRequest1);
         assertThat(response.getMessage()).isEqualTo("Account verification successful");
         assertThat(response.isSuccess()).isEqualTo(true);
+        System.out.println(response.getAccessToken());
+        System.out.println(response.getRefreshToken());
 
         EmailVerificationRequest emailVerificationRequest2 = new EmailVerificationRequest();
         emailVerificationRequest2.setEmail("osodavid272@gmail.com");
-        emailVerificationRequest2.setVerificationToken("OMOcvI3y");
+        emailVerificationRequest2.setVerificationToken("KshevSmg");
 
         AuthenticationResponse response2 = userService.verifyEmail(emailVerificationRequest2, registerRequest2);
         assertThat(response2.getMessage()).isEqualTo("Account verification successful");
         assertThat(response2.isSuccess()).isEqualTo(true);
+        System.out.println(response2.getAccessToken());
+        System.out.println(response2.getRefreshToken());;
     }
 
     @Test
     void authenticate() {
+        authenticationRequest = new AuthenticationRequest();
+        authenticationRequest.setUserName("user");
+        authenticationRequest.setPassword("password");
+
+        AuthenticationResponse response = userService.authenticate(authenticationRequest);
+        assertThat(response.getMessage()).isEqualTo("Authentication successful");
     }
 
     @Test
@@ -111,7 +124,7 @@ class UserServiceImplTest {
         ResetPasswordRequest resetPasswordRequest = new ResetPasswordRequest();
         resetPasswordRequest.setEmail(registerRequest1.getEmail());
         resetPasswordRequest.setNewPassword("newPassword");
-        resetPasswordRequest.setResetPasswordToken("j_JA7toO");
+        resetPasswordRequest.setResetPasswordToken("Bs5LPcME");
         AuthenticationResponse response = userService.resetPassword(resetPasswordRequest);
         assertThat(response.isSuccess()).isEqualTo(true);
         assertThat(response.getMessage()).isEqualTo("Password changed successfully");
