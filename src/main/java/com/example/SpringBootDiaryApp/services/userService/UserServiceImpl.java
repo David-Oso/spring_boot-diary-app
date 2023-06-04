@@ -234,11 +234,13 @@ public class UserServiceImpl implements UserService{
         }
         else {
             verifiedUser.setPassword(passwordEncoder.encode(resetPasswordRequest.getNewPassword()));
-            deleteExpiredOrRevokedJwtToken();
             User savedUser = userRepository.save(verifiedUser);
             tokenRepository.delete(token.get());
             String accessToken = jwtService.generateAccessToken(savedUser);
             String refreshToken = jwtService.generateRefreshToken(savedUser);
+            revokeAllUserTokens(verifiedUser);
+            saveUserJwtToken(savedUser, accessToken);
+            deleteExpiredOrRevokedJwtToken();
 
             return AuthenticationResponse.builder()
                 .isSuccess(true)
@@ -251,8 +253,10 @@ public class UserServiceImpl implements UserService{
     @Override
     public String deleteUserById(Long userId) {
         User foundUser = getUserById(userId);
-        var foundJwtTokens = jwtTokenRepository.findAllValidTokenByUser(userId);
-        jwtTokenRepository.deleteAll(foundJwtTokens);
+        revokeAllUserTokens(foundUser);
+//        var foundJwtTokens = jwtTokenRepository.findAllValidTokenByUser(userId);
+//        jwtTokenRepository.deleteAll(foundJwtTokens);
+        deleteExpiredOrRevokedJwtToken();
         userRepository.deleteById(userId);
         userRepository.delete(foundUser);
         return "User Account Deleted";

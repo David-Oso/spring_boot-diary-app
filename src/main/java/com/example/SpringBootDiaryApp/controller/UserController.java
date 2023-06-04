@@ -69,7 +69,7 @@ public class UserController {
         AuthenticationResponse response = userService.resetPassword(resetPasswordRequest);
         return ResponseEntity.ok(response);
     }
-    @DeleteMapping("{id}")
+    @DeleteMapping("delete/{id}")
     public ResponseEntity<?> deleteUserById(@Valid @PathVariable Long id){
         String response = userService.deleteUserById(id);
         return ResponseEntity.ok(response);
