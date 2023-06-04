@@ -5,7 +5,6 @@ import com.example.SpringBootDiaryApp.data.dto.request.UpdateEntryRequest;
 import com.example.SpringBootDiaryApp.data.model.Entry;
 import org.springframework.data.domain.Page;
 
-import java.util.List;
 
 public interface EntryService {
     String createEntry(CreateEntryRequest createEntryRequest);
