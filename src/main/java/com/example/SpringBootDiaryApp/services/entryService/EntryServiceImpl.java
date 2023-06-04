@@ -6,14 +6,21 @@ import com.example.SpringBootDiaryApp.data.model.Diary;
 import com.example.SpringBootDiaryApp.data.model.Entry;
 import com.example.SpringBootDiaryApp.data.model.User;
 import com.example.SpringBootDiaryApp.data.repositories.EntryRepository;
+import com.example.SpringBootDiaryApp.data.repositories.UserRepository;
 import com.example.SpringBootDiaryApp.exception.NotFoundException;
 import com.example.SpringBootDiaryApp.services.diaryService.DiaryService;
 import com.example.SpringBootDiaryApp.services.userService.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+
+import static com.example.SpringBootDiaryApp.utils.AppUtils.NUMBER_OF_ITEMS_PER_PAGE;
 
 @Service
 @RequiredArgsConstructor
@@ -61,18 +68,27 @@ public class EntryServiceImpl implements EntryService{
     }
 
     @Override
-    public String deleteEntry(Long entryId) {
-        entryRepository.deleteById(entryId);
+    public Page<Entry> getAllEntries(int pageNumber) {
+        if(pageNumber < 1)pageNumber = 0;
+        else pageNumber -= 1;
+        Pageable pageable = PageRequest.of(pageNumber, NUMBER_OF_ITEMS_PER_PAGE);
+        return entryRepository.findAll(pageable);
+    }
+
+    @Override
+    public String deleteEntry(Long userId, Long entryId) {
+        User foundUser = userService.getUserById(userId);
+        Set<Entry> entries = foundUser.getDiary().getEntries();
+        for(Entry entry: foundUser.getDiary().getEntries()){
+            if(entry.getId().equals(entryId))
+                entries.remove(entry);
+        }
+        userService.saveUser(foundUser);
         return "Entry deleted";
     }
-
     @Override
-    public List<Entry> getAllEntries() {
-        return entryRepository.findAll();
-    }
-
-    @Override
-    public void deleteAllEntries() {
+    public void deleteAllEntries(Long userId) {
         entryRepository.deleteAll();
     }
+
 }

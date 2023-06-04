@@ -17,5 +17,6 @@ public interface UserService {
     String sendRestPasswordMail(String email);
     AuthenticationResponse resetPassword(ResetPasswordRequest resetPasswordRequest);
     String deleteUserById(Long userId);
+    void saveUser(User user);
     Long count();
 }
