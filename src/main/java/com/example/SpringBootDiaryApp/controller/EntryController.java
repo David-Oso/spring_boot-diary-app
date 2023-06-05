@@ -39,11 +39,11 @@ public class EntryController {
         return ResponseEntity.ok(response.getContent());
     }
 
-    @DeleteMapping("delete/{userId, entryId}")
-    public ResponseEntity<?> deleteEntry(@Valid @PathVariable Long userId, Long entryId){
-        String response = entryService.deleteEntry(userId, entryId);
-        return ResponseEntity.ok(response);
-    }
+//    @DeleteMapping("delete/{userId, entryId}")
+//    public ResponseEntity<?> deleteEntry(@Valid @PathVariable Long userId, Long entryId){
+//        String response = entryService.deleteEntry(userId, entryId);
+//        return ResponseEntity.ok(response);
+//    }
 
     @DeleteMapping("all/delete/{userId}")
     public ResponseEntity<?> deleteAll(@Valid @PathVariable Long userId){
