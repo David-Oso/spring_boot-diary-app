@@ -69,17 +69,16 @@ class EntryServiceImplTest {
 
     @Test
     void deleteEntry() {
-        assertThat(entryService.numberOfEntries()).isEqualTo(4L);
-        String response = entryService.deleteEntry(1L,2L);
-        assertThat(entryService.numberOfEntries()).isEqualTo(3L);
+        assertThat(entryService.numberOfEntries()).isEqualTo(21L);
+        String response = entryService.deleteEntry(2L);
+        assertThat(entryService.numberOfEntries()).isEqualTo(20L);
         assertThat(response).isEqualTo("Entry deleted");
     }
 
     @Test
     void deleteAllEntries() {
-//        entryService.createEntry(createEntryRequest2);
-        assertThat(entryService.numberOfEntries()).isEqualTo(4L);
-        entryService.deleteAllEntries(1L);
+        assertThat(entryService.numberOfEntries()).isEqualTo(20L);
+        entryService.deleteAllEntries();
         assertThat(entryService.numberOfEntries()).isEqualTo(0L);
     }
 }

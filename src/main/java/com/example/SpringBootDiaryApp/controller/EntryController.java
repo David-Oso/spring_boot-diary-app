@@ -16,40 +16,40 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class EntryController {
     private final EntryService entryService;
+
     @PostMapping("create")
-    public ResponseEntity<?> createEntry(@Valid @RequestBody CreateEntryRequest createEntryRequest){
+    public ResponseEntity<?> createEntry(@Valid @RequestBody CreateEntryRequest createEntryRequest) {
         String response = entryService.createEntry(createEntryRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
+
     @GetMapping("get/{entryId}")
-    public ResponseEntity<?> getEntryById(@Valid @PathVariable Long entryId){
+    public ResponseEntity<?> getEntryById(@Valid @PathVariable Long entryId) {
         Entry foundEntry = entryService.getEntryById(entryId);
         return ResponseEntity.status(HttpStatus.OK).body(foundEntry);
     }
 
     @PutMapping("update")
-    public ResponseEntity<?> updateEntry(@Valid @RequestBody UpdateEntryRequest updateEntryRequest){
+    public ResponseEntity<?> updateEntry(@Valid @RequestBody UpdateEntryRequest updateEntryRequest) {
         String response = entryService.updateEntry(updateEntryRequest);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("all/{page_number}")
-    public ResponseEntity<?> getAllEntries(@Valid @PathVariable int page_number){
+    public ResponseEntity<?> getAllEntries(@Valid @PathVariable int page_number) {
         Page<Entry> response = entryService.getAllEntries(page_number);
         return ResponseEntity.ok(response.getContent());
     }
 
-//    @DeleteMapping("delete/{userId, entryId}")
-//    public ResponseEntity<?> deleteEntry(@Valid @PathVariable Long userId, Long entryId){
-//        String response = entryService.deleteEntry(userId, entryId);
-//        return ResponseEntity.ok(response);
-//    }
+    @DeleteMapping("delete/{entry_id}")
+    public ResponseEntity<?> deleteEntryById(@Valid  @PathVariable Long entry_id){
+        String response = entryService.deleteEntry(entry_id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
-    @DeleteMapping("all/delete/{userId}")
-    public ResponseEntity<?> deleteAll(@Valid @PathVariable Long userId){
-        entryService.deleteAllEntries(userId);
-        return ResponseEntity.ok("Entries are deleted");
+    @DeleteMapping("delete/all")
+    public ResponseEntity<?> deleteAllEntries(){
+        entryService.deleteAllEntries();
+        return ResponseEntity.status(HttpStatus.OK).body("All entries deleted");
     }
 }
-//    String deleteEntry(Long userId, Long entryId);
-//    void deleteAllEntries(Long userId);

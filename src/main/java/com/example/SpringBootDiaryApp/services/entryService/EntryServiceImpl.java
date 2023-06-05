@@ -76,18 +76,12 @@ public class EntryServiceImpl implements EntryService{
     }
 
     @Override
-    public String deleteEntry(Long userId, Long entryId) {
-        User foundUser = userService.getUserById(userId);
-        Set<Entry> entries = foundUser.getDiary().getEntries();
-        for(Entry entry: foundUser.getDiary().getEntries()){
-            if(entry.getId().equals(entryId))
-                entries.remove(entry);
-        }
-        userService.saveUser(foundUser);
+    public String deleteEntry( Long entryId) {
+        entryRepository.deleteById(entryId);
         return "Entry deleted";
     }
     @Override
-    public void deleteAllEntries(Long userId) {
+    public void deleteAllEntries() {
         entryRepository.deleteAll();
     }
 

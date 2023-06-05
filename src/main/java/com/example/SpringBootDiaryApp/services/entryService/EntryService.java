@@ -12,6 +12,6 @@ public interface EntryService {
     String updateEntry(UpdateEntryRequest updateEntryRequest);
     Long numberOfEntries();
     Page<Entry> getAllEntries(int pageNumber);
-    String deleteEntry(Long userId, Long entryId);
-    void deleteAllEntries(Long userId);
+    String deleteEntry(Long entryId);
+    void deleteAllEntries();
 }

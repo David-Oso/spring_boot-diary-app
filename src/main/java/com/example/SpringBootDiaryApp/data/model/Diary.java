@@ -19,6 +19,18 @@ public class Diary {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 //    @OneToMany(mappedBy = "diary", cascade = CascadeType.DETACH, fetch = FetchType.EAGER, orphanRemoval = true)
-    @OneToMany(cascade = CascadeType.DETACH, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true)
+    @JoinTable(
+            joinColumns = @JoinColumn(
+                    name = "diary_id",
+                    foreignKey = @ForeignKey(
+                    foreignKeyDefinition = "foreign key (diary_id) references diary(id) ON DELETE CASCADE"
+            )),
+            inverseJoinColumns = @JoinColumn(
+                    name = "entries_id",
+                    foreignKey = @ForeignKey(
+                    foreignKeyDefinition = "foreign key (entries_id) references entry(id) ON DELETE CASCADE"
+            ))
+    )
     private Set<Entry> entries = new HashSet<>();
 }
