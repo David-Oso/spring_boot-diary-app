@@ -9,8 +9,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class CreateEntryRequest {
-    private Long userId;
-    private String title;
-    private String body;
+public class ResetPasswordRequest {
+    private String email;
+    private String resetPasswordToken;
+    private String newPassword;
 }

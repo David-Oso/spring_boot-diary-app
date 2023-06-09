@@ -1,5 +1,6 @@
 package com.example.SpringBootDiaryApp.data.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
@@ -15,6 +16,7 @@ import static com.example.SpringBootDiaryApp.utils.AppUtils.*;
 @NoArgsConstructor
 @Getter
 @Setter
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class RegisterRequest {
 
     @NotBlank(message = "field user name cannot be blank")
@@ -27,7 +29,6 @@ public class RegisterRequest {
     @Email(message = "must be valid email address", regexp = EMAIL_REGEX_STRING)
     private String email;
 
-
     @NotEmpty(message = "field password cannot be empty")
     @NotBlank(message = "field password cannot be blank")
     @Size(min = 8, message = "Password must have at least 8 characters")
@@ -35,9 +36,6 @@ public class RegisterRequest {
             message = "Password must contain at least one uppercase letter, one lowercase letter, one digit, and one special character")
     private String password;
 
-
-    @Pattern(message = "profile image must be a jpeg or jpg or svg format", regexp = IMAGE_REGEX)
-    private MultipartFile profileImage;
-
+    private String verificationToken;
 
 }

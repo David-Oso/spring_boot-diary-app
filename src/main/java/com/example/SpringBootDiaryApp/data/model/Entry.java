@@ -27,6 +27,5 @@ public class Entry {
     private String body;
     @CreationTimestamp
     private LocalDateTime createdAt;
-    @UpdateTimestamp
     private LocalDateTime updatedAt;
 }

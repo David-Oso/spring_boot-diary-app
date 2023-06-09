@@ -2,22 +2,21 @@ package com.example.SpringBootDiaryApp.services.userService;
 
 import com.example.SpringBootDiaryApp.data.dto.request.*;
 import com.example.SpringBootDiaryApp.data.dto.response.*;
-import com.example.SpringBootDiaryApp.data.model.Entry;
 import com.example.SpringBootDiaryApp.data.model.User;
-import com.github.fge.jsonpatch.JsonPatch;
-import org.springframework.data.domain.Page;
-
-import java.util.List;
 
 
 public interface UserService {
-    AuthenticationResponse registerUser(RegisterRequest registerUserRequest);
+    void registerUser(EmailVerificationRequest emailVerificationRequest);
+    void resendTokenToRegisteredEmail(String email);
+    AuthenticationResponse verifyEmail(RegisterRequest registerRequest);
     AuthenticationResponse authenticate(AuthenticationRequest authenticationRequest);
+    String uploadProfileImage(UploadImageRequest uploadImageRequest);
     User getUserById(Long userId);
     User getUserByEmail(String email);
-    String updateUser(Long userId, UpdateUserRequest updateUserRequest);
-
+    String changeUserName(ChangeUserNameRequest changeUserNameRequest);
+    String sendRestPasswordMail(String email);
+    AuthenticationResponse resetPassword(ResetPasswordRequest resetPasswordRequest);
     String deleteUserById(Long userId);
+    void saveUser(User user);
     Long count();
-
 }

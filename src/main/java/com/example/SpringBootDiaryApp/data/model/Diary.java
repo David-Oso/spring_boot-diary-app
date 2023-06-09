@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -17,7 +18,19 @@ public class Diary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-//    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.PERSIST)
-    @OneToMany
-    private Set<Entry> entries;
+//    @OneToMany(mappedBy = "diary", cascade = CascadeType.DETACH, fetch = FetchType.EAGER, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, orphanRemoval = true)
+    @JoinTable(
+            joinColumns = @JoinColumn(
+                    name = "diary_id",
+                    foreignKey = @ForeignKey(
+                    foreignKeyDefinition = "foreign key (diary_id) references diary(id) ON DELETE CASCADE"
+            )),
+            inverseJoinColumns = @JoinColumn(
+                    name = "entries_id",
+                    foreignKey = @ForeignKey(
+                    foreignKeyDefinition = "foreign key (entries_id) references entry(id) ON DELETE CASCADE"
+            ))
+    )
+    private Set<Entry> entries = new HashSet<>();
 }
