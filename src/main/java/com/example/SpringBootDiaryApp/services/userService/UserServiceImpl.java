@@ -60,28 +60,23 @@ public class UserServiceImpl implements UserService{
     }
 
     private void sendVerificationMail(User user) {
-        notificationRequest = new EmailNotificationRequest();
-        Recipient recipient = new Recipient(user.getEmail(), user.getEmail());
-        notificationRequest.getTo().add(recipient);
-        notificationRequest.setSubject("Activation Of MyDiary Application");
-
+        String subject = "Activation Of MyDiary Application";
         String otp = RandomStringGenerator.generateRandomString(6);
         String htmlContent = getEmailMessage(otp);
-        notificationRequest.setHtmlContent(htmlContent);
         Optional<Token> existingToken = tokenRepository.findTokenByUser(user);
         existingToken.ifPresent(tokenRepository::delete);
         Token token = new Token(user, otp);
         tokenRepository.save(token);
-        emailService.sendHtmlMail(notificationRequest);
+        sendMail(user.getName(), user.getEmail(), subject, htmlContent);
     }
 
     private String getEmailMessage(String otp) {
         return String.format("""
-                     To activate MyDiary Application, enter the verification code below:
-                     
-                                                    %s  \s
-                                                                                                 \s
-                     Note: The verification code expires within 5 minutes.
+                     To activate MyDiary Application, enter the verification code below: <br/>
+                     <br/>
+                                                    %s  <br/>
+                     <br/>                                                      \s
+                     Note: The verification code expires within 5 minutes.  <br/>
                      
                        """, otp);
     }
@@ -123,18 +118,14 @@ public class UserServiceImpl implements UserService{
     }
 
     private void sendSuccessfulRegistrationMail(User user) {
-        notificationRequest = new EmailNotificationRequest();
-        notificationRequest.setSubject("Successful Account Creation");
-        Recipient recipient = new Recipient(user.getName(), user.getEmail());
-        notificationRequest.getTo().add(recipient);
-        notificationRequest.setHtmlContent(String.format("""
-                Dear %s, you have Diary has been verified.
-                Kindly enjoy and judiciously use your diary wisely.
-                
+        String subject = "Successful Account Creation";
+        String htmlContent = String.format("""
+                Dear %s, you have Diary has been verified. <br/>
+                Kindly enjoy and judiciously use your diary wisely. <br/>
+                <br/>
                 Thank you for choosing MyDiary
-                
-                """, user.getName()));
-        emailService.sendHtmlMail(notificationRequest);
+                """, user.getName());
+        sendMail(user.getName(), user.getEmail(), subject, htmlContent);
     }
 
 
@@ -196,28 +187,35 @@ public class UserServiceImpl implements UserService{
     @Override
     public String sendRestPasswordMail(String email) {
         User foundUser = getUserByEmail(email);
-        notificationRequest = new EmailNotificationRequest();
-        Recipient recipient = new Recipient(foundUser.getName(), foundUser.getEmail());
-        notificationRequest.getTo().add(recipient);
-        notificationRequest.setSubject("Change password");
-
+        String name = foundUser.getName();
+        String toEmail = foundUser.getEmail();
+        String subject = "Change password";
         String otp = RandomStringGenerator.generateRandomString(6);
         String htmlContent = changePasswordMessage(foundUser.getName(), otp);
-        notificationRequest.setHtmlContent(htmlContent);
+
         Optional<Token> existingToken = tokenRepository.findTokenByUser(foundUser);
         existingToken.ifPresent(tokenRepository::delete);
         Token token = new Token(foundUser, otp);
         tokenRepository.save(token);
-        emailService.sendHtmlMail(notificationRequest);
+        sendMail(name, toEmail, subject, htmlContent);
         return "Check you mail to process your request";
+    }
+
+    private void sendMail(String name, String email, String subject, String htmlContent){
+        notificationRequest = new EmailNotificationRequest();
+        Recipient recipient = new Recipient(name, email);
+        notificationRequest.getTo().add(recipient);
+        notificationRequest.setSubject(subject);
+        notificationRequest.setHtmlContent(htmlContent);
+        emailService.sendHtmlMail(notificationRequest);
     }
 
 
     private String changePasswordMessage(String userName, String otp) {
         return String.format("""
                 Dear %s, it is a best thing to do when you suspect that your information is not being private again
-                To change your password kindly enter the following code: \n
-                                                %s
+                To change your password kindly enter the following code: <br/>
+                                                %s  <br/>
                 MyDiary serves you well.
                 """, userName, otp);
     }
